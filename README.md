@@ -36,7 +36,7 @@ Add all the sounds that you want during the cutscene. Each sound in the list wil
 Sound start times are the delay between the cutscene starting, and the sound actually playing. The order they're in matters. This is the delay for the sound in the same position, so the first sound start time is the delay for the first sound in the sound list, and the fifth sound start time is the delay for the fifth sound in the sound list.
 
 ### Camera
-The Camera variable must be filled. This is the object the cutscene camera will attach. Animate this object for camera movement during cutscenes.
+The Camera variable must be filled. Do not leave a camera on this object. The cutscene camera will become a child of that object. Animate this object for camera movement during cutscenes.
 
 ### Audio Control
 Audio Simmer Mode determines what happens to the stage background music during the cutscene.
