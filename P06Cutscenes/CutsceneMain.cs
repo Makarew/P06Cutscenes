@@ -1,8 +1,8 @@
-﻿
+﻿using MelonLoader;
 
 namespace P06Cutscenes
 {
-    public class CutsceneMain
+    public class CutsceneMain : MelonMod
     {
 
     }

@@ -14,10 +14,10 @@ namespace P06Cutscenes
         private List<bool> isPlaying;
         private List<AudioSource> sources;
 
-        public GameObject camera;
-        //private PlayerCamera playerCamera;
+        public GameObject[] objectsToHide;
 
-        //public GameObject[] objectSwap;
+        public GameObject camera;
+        private PlayerCamera playerCamera;
 
         [Header("Audio Control")]
         [Tooltip("0 = Stop BGM And Restart After Cutscene; 1 = Volume Is 0; 2 = Fade Out; 3 = Don't Stop")]
@@ -41,7 +41,6 @@ namespace P06Cutscenes
         [Tooltip("Play another cutscene after this cutscene ends; Good for cutscenes spanning multiple areas")]
         public Cutscene nextCutscene;
 
-        //[Tooltip("Change to mach speed after cutscene")]
         public enum newCharacter
         {
             keep,
@@ -68,8 +67,8 @@ namespace P06Cutscenes
         public GameObject player;
         private AudioSource mainSource;
 
-        private List<GameObject> uiObjects;
-        //private GameManager gameManager;
+        private GameObject uiObject;
+        private GameManager gameManager;
         private float igtime;
 
         private void Start()
@@ -85,11 +84,22 @@ namespace P06Cutscenes
                 }
             }
 
-            mainSource = GameObject.Find("Stage").GetComponent<AudioSource>();
+            mainSource = FindObjectOfType<StageManager>().GetComponent<AudioSource>();
 
-            uiObjects = GetObjectsOnLayer(5, "Finish");
+            uiObject = FindObjectOfType<UI>().gameObject;
 
-            //gameManager = FindObjectOfType<GameManager>();
+            if (animators == null)
+                animators = new Animator[0];
+            if (clips == null)
+                clips = new AnimationClip[0];
+            if (sounds == null)
+                sounds = new AudioClip[0];
+            if (soundStartTimes == null)
+                soundStartTimes = new float[0];
+            if (objectsToHide == null)
+                objectsToHide = new GameObject[0];
+
+            gameManager = FindObjectOfType<GameManager>();
         }
 
         public void StartCutscene()
@@ -133,20 +143,21 @@ namespace P06Cutscenes
                 mainSource.Play();
             }
 
-            for (int i = 0; i < uiObjects.Count; i++)
+            uiObject.SetActive(false);
+
+            for (int i = 0; i < objectsToHide.Length; i++)
             {
-                uiObjects[i].SetActive(false);
+                objectsToHide[i].SetActive(false);
             }
 
-            //igtime = gameManager._PlayerData.time;
+            igtime = gameManager._PlayerData.time;
 
-            //playerCamera = FindObjectOfType<PlayerCamera>();
-            //playerCamera.GetComponent<StateMachine>().enabled = false;
-            //playerCamera.enabled = false;
+            playerCamera.GetComponent<StateMachine>().enabled = false;
+            playerCamera.enabled = false;
 
-            //playerCamera.transform.SetParent(camera.transform);
-            //playerCamera.transform.localPosition = Vector3.zero;
-            //playerCamera.transform.localRotation = new Quaternion();
+            playerCamera.transform.SetParent(camera.transform);
+            playerCamera.transform.localPosition = Vector3.zero;
+            playerCamera.transform.localRotation = new Quaternion();
 
             started = true;
         }
@@ -163,6 +174,9 @@ namespace P06Cutscenes
 
         private void Update()
         {
+            if (playerCamera == null)
+                FindCam();
+
             if (!started)
             {
                 return;
@@ -205,12 +219,14 @@ namespace P06Cutscenes
 
                 mainSource.volume = bgmVal;
 
-                for (int i = 0; i < uiObjects.Count; i++)
+                uiObject.SetActive(true);
+
+                for (int i = 0; i < objectsToHide.Length; i++)
                 {
-                    uiObjects[i].SetActive(true);
+                    objectsToHide[i].SetActive(false);
                 }
 
-                if(tpPoint != null)
+                if (tpPoint != null)
                 {
                     player.transform.position = tpPoint.position;
                     player.transform.rotation = tpPoint.rotation;
@@ -237,10 +253,10 @@ namespace P06Cutscenes
                     toEnable[i].SetActive(true);
                 }
 
-                //playerCamera.GetComponent<StateMachine>().enabled = true;
-                //playerCamera.enabled = true;
+                playerCamera.GetComponent<StateMachine>().enabled = true;
+                playerCamera.enabled = true;
 
-                //playerCamera.transform.SetParent(null);
+                playerCamera.transform.SetParent(null);
 
                 TakerFix();
 
@@ -280,13 +296,14 @@ namespace P06Cutscenes
                         break;
                 }
 
+                gameManager._PlayerData.time = igtime;
+
                 if (nextCutscene != null)
                 {
                     nextCutscene.player = player;
 
                     nextCutscene.StartCutscene();
-                } //else 
-                    //gameManager._PlayerData.time = igtime;
+                }
 
                 Destroy(gameObject);
             }
@@ -311,19 +328,19 @@ namespace P06Cutscenes
             Destroy(pb.gameObject);
         }
 
-        private List<GameObject> GetObjectsOnLayer(int layer, string tag)
+        private void FindCam()
         {
-            GameObject[] objects = FindObjectsOfType<GameObject>();
-            List<GameObject> list = new List<GameObject>();
-            for (int i = 0; i < objects.Length; i++)
+            Camera[] cams = FindObjectsOfType<Camera>();
+
+            for (int i = 0; i < cams.Length; i++)
             {
-                if(objects[i].layer == layer && objects[i].tag != tag)
+                if (cams[i].GetComponentInParent<PlayerCamera>())
                 {
-                    list.Add(objects[i]);
+                    playerCamera = cams[i].GetComponentInParent<PlayerCamera>();
+
+                    break;
                 }
             }
-
-            return list;
         }
     }
 }
