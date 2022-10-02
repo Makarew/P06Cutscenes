@@ -12,6 +12,9 @@ namespace P06Cutscenes
 
         private AudioSource mainSource;
 
+        private bool triggerEx = true;
+        private bool triggerStay;
+
         private void Start()
         {
             mainSource = GameObject.Find("Stage").GetComponent<AudioSource>();
@@ -41,6 +44,10 @@ namespace P06Cutscenes
                 inArea = true;
                 target.SetActive(true);
 
+                c = 5;
+
+                triggerEx = false;
+
                 if (mainSource.time < 1)
                 {
                     mainSource.clip = respawnBGM;
@@ -54,6 +61,16 @@ namespace P06Cutscenes
             if (other.tag == "Player")
             {
                 inArea = false;
+                triggerEx = true;
+            }
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (other.tag == "Player" && triggerEx == true)
+            {
+                triggerEx = false;
+                inArea = true;
             }
         }
     }
