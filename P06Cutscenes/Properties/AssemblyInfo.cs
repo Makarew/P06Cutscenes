@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using MelonLoader;
 using P06Cutscenes;
 
-[assembly: MelonInfo(typeof(CutsceneMain), "P06Cutscenes", "1.0.1", "Makarew")]
+[assembly: MelonInfo(typeof(CutsceneMain), "P06Cutscenes", "1.0.2", "Makarew")]
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
